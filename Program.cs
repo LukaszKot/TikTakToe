@@ -63,7 +63,7 @@ class Game
     public bool IsADraw()
         => MoveCount == Board.Size * Board.Size;
 
-    public Queue<Player> Players { get; set; } = new Queue<Player>(new List<Player> { new('Y'), new('X') });
+    public Queue<Player> Players { get; set; } = new Queue<Player>(new List<Player> { new Player('Y'), new Player('X') });
     public Player GetCurrentTurnPlayer()
         => Players.Peek();
     public void ChangeTurn()
@@ -75,7 +75,7 @@ class Game
 
 class Player
 {
-    public char Character { get; init; }
+    public char Character { get; private set; }
     public Player(char character)
     {
         Character = character;
@@ -84,8 +84,8 @@ class Player
 
 class Board
 {
-    public char[,] Boxes { get; init; }
-    public int Size { get; init; }
+    public char[,] Boxes { get; private set; }
+    public int Size { get; private set; }
     public Board(int size)
     {
         Boxes = new char[size, size];
