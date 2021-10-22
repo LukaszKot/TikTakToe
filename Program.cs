@@ -169,6 +169,22 @@ class Program
         }
     }
 
+    private static void MoveToField(Program prog, int fieldNumber, char player, ref int moveCount, int size)
+    {
+        fieldNumber--;
+        var row = fieldNumber / size;
+        var column = fieldNumber % size;
+        if (prog.Boxes[row, column] == ' ')
+        {
+            prog.Boxes[row, column] = player;
+            moveCount++;
+        }
+        else
+        {
+            prog.NotVacantError();
+        }
+    }
+
     static void Main()
     {
         int moveCount = 0; // check loss
@@ -200,113 +216,17 @@ class Program
             Console.WriteLine("What box do you want to place {0} in? (1-9)", askMove);
             Console.Write("> ");
             selTemp = int.Parse(Console.ReadLine());
-            switch (selTemp)
+
+            if (selTemp < 10 && selTemp > 0)
             {
-                case 1:
-                    if (prog.Boxes[0, 0] == ' ')
-                    {
-                        prog.Boxes[0, 0] = askMove;
-                        moveCount++;
-                    }
-                    else
-                    {
-                        prog.NotVacantError();
-                    }
-                    break;
-                case 2:
-                    if (prog.Boxes[0, 1] == ' ')
-                    {
-                        prog.Boxes[0, 1] = askMove;
-                        moveCount++;
-                    }
-                    else
-                    {
-                        prog.NotVacantError();
-                    }
-                    break;
-                case 3:
-                    if (prog.Boxes[0, 2] == ' ')
-                    {
-                        prog.Boxes[0, 2] = askMove;
-                        moveCount++;
-                    }
-                    else
-                    {
-                        prog.NotVacantError();
-                    }
-                    break;
-                case 4:
-                    if (prog.Boxes[1, 0] == ' ')
-                    {
-                        prog.Boxes[1, 0] = askMove;
-                        moveCount++;
-                    }
-                    else
-                    {
-                        prog.NotVacantError();
-                    }
-                    break;
-                case 5:
-                    if (prog.Boxes[1, 1] == ' ')
-                    {
-                        prog.Boxes[1, 1] = askMove;
-                        moveCount++;
-                    }
-                    else
-                    {
-                        prog.NotVacantError();
-                    }
-                    break;
-                case 6:
-                    if (prog.Boxes[1, 2] == ' ')
-                    {
-                        prog.Boxes[1, 2] = askMove;
-                        moveCount++;
-                    }
-                    else
-                    {
-                        prog.NotVacantError();
-                    }
-                    break;
-                case 7:
-                    if (prog.Boxes[2, 0] == ' ')
-                    {
-                        prog.Boxes[2, 0] = askMove;
-                        moveCount++;
-                    }
-                    else
-                    {
-                        prog.NotVacantError();
-                    }
-                    break;
-                case 8:
-                    if (prog.Boxes[2, 1] == ' ')
-                    {
-                        prog.Boxes[2, 1] = askMove;
-                        moveCount++;
-                    }
-                    else
-                    {
-                        prog.NotVacantError();
-                    }
-                    break;
-                case 9:
-                    if (prog.Boxes[2, 2] == ' ')
-                    {
-                        prog.Boxes[2, 2] = askMove;
-                        moveCount++;
-                    }
-                    else
-                    {
-                        prog.NotVacantError();
-                    }
-                    break;
-                default:
-                    Console.WriteLine("Wrong selection entered!");
-                    Console.WriteLine("Press any key to try again..");
-                    Console.ReadKey();
-                    prog.HasError = true;
-                    break;
+                MoveToField(prog, selTemp, askMove, ref moveCount, 3);
+            }
+            else
+            {
+                Console.WriteLine("Wrong selection entered!");
+                Console.WriteLine("Press any key to try again..");
+                Console.ReadKey();
+                prog.HasError = true;
             }
             if (prog.HasError)
             {
