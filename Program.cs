@@ -169,15 +169,14 @@ class Program
         }
     }
 
-    private static void MoveToField(Program prog, int fieldNumber, char player, ref int moveCount, int size)
+    private static void MoveToField(Program prog, int fieldNumber, Player player, Game game, int size)
     {
         fieldNumber--;
         var row = fieldNumber / size;
         var column = fieldNumber % size;
         if (prog.Boxes[row, column] == ' ')
         {
-            prog.Boxes[row, column] = player;
-            moveCount++;
+            prog.Boxes[row, column] = player.Character;
         }
         else
         {
@@ -187,8 +186,7 @@ class Program
 
     static void Main()
     {
-        int moveCount = 0; // check loss
-        char askMove; // display X or Y in question
+        var game = new Game();
         int selTemp;
         Program prog = new Program();
         prog.HasError = false;
@@ -198,28 +196,21 @@ class Program
         Console.Clear();
         while (!prog.IsWin)
         {
-            if (moveCount == 9)
+            if (game.IsADraw())
             {
                 prog.DisplayLoss();
             }
-            if ((prog.isY) == true) // if is X
-            {
-                askMove = 'X';
-            }
-            else
-            {
-                askMove = 'Y';
-            }
             Console.Clear();
             prog.WriteBoard(3);
+            game.ChangeTurn();
             Console.WriteLine();
-            Console.WriteLine("What box do you want to place {0} in? (1-9)", askMove);
+            Console.WriteLine("What box do you want to place {0} in? (1-9)", game.GetCurrentTurnPlayer().Character);
             Console.Write("> ");
             selTemp = int.Parse(Console.ReadLine());
 
             if (selTemp < 10 && selTemp > 0)
             {
-                MoveToField(prog, selTemp, askMove, ref moveCount, 3);
+                MoveToField(prog, selTemp, game.GetCurrentTurnPlayer(), game, 3);
             }
             else
             {
@@ -244,5 +235,30 @@ class Program
         Console.WriteLine();
         Console.WriteLine("The winner is {0}!", prog.WinPerson);
         Console.ReadKey();
+    }
+}
+
+class Game
+{
+    public int MoveCount { get; set; } = 0;
+
+    public bool IsADraw() => MoveCount == 9;
+
+    public Queue<Player> Players { get; set; } = new Queue<Player>(new List<Player> { new('Y'), new('X') });
+    public Player GetCurrentTurnPlayer()
+        => Players.Peek();
+    public void ChangeTurn()
+    {
+        Players.Enqueue(Players.Dequeue());
+        MoveCount++;
+    }
+}
+
+class Player
+{
+    public char Character { get; init; }
+    public Player(char character)
+    {
+        Character = character;
     }
 }
