@@ -2,21 +2,111 @@
 using System.Collections.Generic;
 using System.Linq;
 
-class Program
+static class Program
 {
+    static void Main()
+    {
+        var game = new Game(3);
+        Console.WriteLine(" -- Tic Tac Toe -- ");
+        while (!game.Board.IsWin)
+        {
+            if (game.IsADraw())
+            {
+                game.Board.DisplayLoss();
+            }
+            Console.Clear();
+            game.Board.WriteBoard(3);
+            game.ChangeTurn();
+            Console.WriteLine();
+            Console.WriteLine("What box do you want to place {0} in? (1-9)", game.GetCurrentTurnPlayer().Character);
+            Console.Write("> ");
+            int selTemp = int.Parse(Console.ReadLine());
+
+            if (selTemp < 10 && selTemp > 0)
+            {
+                game.Board.MoveToField(selTemp, game.GetCurrentTurnPlayer(), 3);
+            }
+            else
+            {
+                Console.WriteLine("Wrong selection entered!");
+                Console.WriteLine("Press any key to try again..");
+                Console.ReadKey();
+                game.Board.HasError = true;
+            }
+            if (game.Board.HasError)
+            {
+                game.Board.CheckWin(); // if error, just check win
+                game.Board.HasError = !game.Board.HasError;
+            }
+            else
+            {
+                game.Board.CheckWin();
+            }
+        }
+        Console.Clear();
+        game.Board.WriteBoard(3);
+        Console.WriteLine();
+        Console.WriteLine("The winner is {0}!", game.Board.WinPerson);
+        Console.ReadKey();
+    }
+}
+
+class Game
+{
+    public Board Board;
+    public Game(int size)
+    {
+        Board = new Board(size);
+    }
+    public int MoveCount { get; set; } = 0;
+
+    public bool IsADraw()
+        => MoveCount == Board.Size * Board.Size;
+
+    public Queue<Player> Players { get; set; } = new Queue<Player>(new List<Player> { new('Y'), new('X') });
+    public Player GetCurrentTurnPlayer()
+        => Players.Peek();
+    public void ChangeTurn()
+    {
+        Players.Enqueue(Players.Dequeue());
+        MoveCount++;
+    }
+}
+
+class Player
+{
+    public char Character { get; init; }
+    public Player(char character)
+    {
+        Character = character;
+    }
+}
+
+class Board
+{
+    public char[,] Boxes { get; init; }
+    public int Size { get; init; }
+    public Board(int size)
+    {
+        Boxes = new char[size, size];
+        InitializeData(size);
+        Size = size;
+    }
+
+    private void InitializeData(int size)
+    {
+        for (var i = 0; i < size; i++)
+        {
+            for (var j = 0; j < size; j++)
+            {
+                Boxes[i, j] = ' ';
+            }
+        }
+    }
+
     public char WinPerson { get; set; }
 
     public bool IsWin { get; set; }
-
-    private bool isX;
-
-    public bool isY
-    {
-        get { return isX; }
-        set { isX = value; }
-    }
-
-    public char[,] Boxes { get; set; } = new char[3, 3];
 
     public void WriteBoard(int size)
     {
@@ -156,108 +246,20 @@ class Program
         Environment.Exit(1);
     }
 
-    public bool HasError;
+    public bool HasError = false;
 
-    public void InitializeData(int size)
-    {
-        for (var i = 0; i < size; i++)
-        {
-            for (var j = 0; j < size; j++)
-            {
-                Boxes[i, j] = ' ';
-            }
-        }
-    }
-
-    private static void MoveToField(Program prog, int fieldNumber, Player player, Game game, int size)
+    public void MoveToField(int fieldNumber, Player player, int size)
     {
         fieldNumber--;
         var row = fieldNumber / size;
         var column = fieldNumber % size;
-        if (prog.Boxes[row, column] == ' ')
+        if (Boxes[row, column] == ' ')
         {
-            prog.Boxes[row, column] = player.Character;
+            Boxes[row, column] = player.Character;
         }
         else
         {
-            prog.NotVacantError();
+            NotVacantError();
         }
-    }
-
-    static void Main()
-    {
-        var game = new Game();
-        Program prog = new Program();
-        prog.HasError = false;
-        prog.InitializeData(3);
-        prog.isY = true;
-        Console.WriteLine(" -- Tic Tac Toe -- ");
-        Console.Clear();
-        while (!prog.IsWin)
-        {
-            if (game.IsADraw())
-            {
-                prog.DisplayLoss();
-            }
-            Console.Clear();
-            prog.WriteBoard(3);
-            game.ChangeTurn();
-            Console.WriteLine();
-            Console.WriteLine("What box do you want to place {0} in? (1-9)", game.GetCurrentTurnPlayer().Character);
-            Console.Write("> ");
-            int selTemp = int.Parse(Console.ReadLine());
-
-            if (selTemp < 10 && selTemp > 0)
-            {
-                MoveToField(prog, selTemp, game.GetCurrentTurnPlayer(), game, 3);
-            }
-            else
-            {
-                Console.WriteLine("Wrong selection entered!");
-                Console.WriteLine("Press any key to try again..");
-                Console.ReadKey();
-                prog.HasError = true;
-            }
-            if (prog.HasError)
-            {
-                prog.CheckWin(); // if error, just check win
-                prog.HasError = !prog.HasError;
-            }
-            else
-            {
-                prog.isY = !prog.isY; // flip boolean
-                prog.CheckWin();
-            }
-        }
-        Console.Clear();
-        prog.WriteBoard(3);
-        Console.WriteLine();
-        Console.WriteLine("The winner is {0}!", prog.WinPerson);
-        Console.ReadKey();
-    }
-}
-
-class Game
-{
-    public int MoveCount { get; set; } = 0;
-
-    public bool IsADraw() => MoveCount == 9;
-
-    public Queue<Player> Players { get; set; } = new Queue<Player>(new List<Player> { new('Y'), new('X') });
-    public Player GetCurrentTurnPlayer()
-        => Players.Peek();
-    public void ChangeTurn()
-    {
-        Players.Enqueue(Players.Dequeue());
-        MoveCount++;
-    }
-}
-
-class Player
-{
-    public char Character { get; init; }
-    public Player(char character)
-    {
-        Character = character;
     }
 }
