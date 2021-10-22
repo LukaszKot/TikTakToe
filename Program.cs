@@ -187,7 +187,6 @@ class Program
     static void Main()
     {
         var game = new Game();
-        int selTemp;
         Program prog = new Program();
         prog.HasError = false;
         prog.InitializeData(3);
@@ -206,7 +205,7 @@ class Program
             Console.WriteLine();
             Console.WriteLine("What box do you want to place {0} in? (1-9)", game.GetCurrentTurnPlayer().Character);
             Console.Write("> ");
-            selTemp = int.Parse(Console.ReadLine());
+            int selTemp = int.Parse(Console.ReadLine());
 
             if (selTemp < 10 && selTemp > 0)
             {
