@@ -32,10 +32,12 @@ class Game
         Players.Enqueue(Players.Dequeue());
         MoveCount++;
     }
+    public bool IsWin { get; set; }
+    public char WinPerson { get; set; }
 
     public void Play()
     {
-        while (!Board.IsWin)
+        while (!IsWin)
         {
             if (IsADraw())
             {
@@ -62,19 +64,37 @@ class Game
             }
             if (Board.HasError)
             {
-                Board.CheckWin(); // if error, just check win
+                CheckWin(); // if error, just check win
                 Board.HasError = !Board.HasError;
             }
             else
             {
-                Board.CheckWin();
+                CheckWin();
             }
         }
         Console.Clear();
         Board.WriteBoard(3);
         Console.WriteLine();
-        Console.WriteLine("The winner is {0}!", Board.WinPerson);
+        Console.WriteLine("The winner is {0}!", WinPerson);
         Console.ReadKey();
+    }
+    private void MarkPlayerAsAWinner(char player)
+    {
+        IsWin = true;
+        WinPerson = player;
+    }
+
+    public void CheckWin()
+    {
+        CheckWinForPlayer('X', 3);
+        CheckWinForPlayer('Y', 3);
+    }
+    private void CheckWinForPlayer(char player, int size)
+    {
+        if (Board.IsPlayerAWinner(player, size))
+        {
+            MarkPlayerAsAWinner(player);
+        }
     }
 }
 
@@ -109,10 +129,6 @@ class Board
         }
     }
 
-    public char WinPerson { get; set; }
-
-    public bool IsWin { get; set; }
-
     public void WriteBoard(int size)
     {
         var table = new List<string>();
@@ -143,6 +159,14 @@ class Board
             }
         }
         return false;
+    }
+
+    public bool IsPlayerAWinner(char player, int size)
+    {
+        return IsPlayerWinnerInAnyColumn(player, size)
+            || IsPlayerWinnerInAnyRow(player, size)
+            || IsPlayerWinnerInLeftCrossing(player, size)
+            || IsPlayerWinnerInRightCrossing(player, size);
     }
 
     private bool IsWinnerInRow(char player, int rowIndex, int numberOfColumns)
@@ -203,34 +227,6 @@ class Board
             }
         }
         return true;
-    }
-
-    private bool IsPlayerAWinner(char player, int size)
-    {
-        return IsPlayerWinnerInAnyColumn(player, size)
-            || IsPlayerWinnerInAnyRow(player, size)
-            || IsPlayerWinnerInLeftCrossing(player, size)
-            || IsPlayerWinnerInRightCrossing(player, size);
-    }
-
-    public void CheckWin()
-    {
-        CheckWinForPlayer('X', 3);
-        CheckWinForPlayer('Y', 3);
-    }
-
-    private void CheckWinForPlayer(char player, int size)
-    {
-        if (IsPlayerAWinner(player, size))
-        {
-            MarkPlayerAsAWinner(player);
-        }
-    }
-
-    private void MarkPlayerAsAWinner(char player)
-    {
-        IsWin = true;
-        WinPerson = player;
     }
 
     public void NotVacantError()
