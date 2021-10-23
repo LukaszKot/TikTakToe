@@ -24,7 +24,8 @@ class Game
     public bool IsADraw()
         => MoveCount == Board.Size * Board.Size;
 
-    public Queue<Player> Players { get; set; } = new Queue<Player>(new List<Player> { new Player('Y'), new Player('X') });
+    public Queue<Player> Players { get; set; }
+        = new Queue<Player>(new List<Player> { new Player('Y'), new Player('X') });
     public Player GetCurrentTurnPlayer()
         => Players.Peek();
     public void ChangeTurn()
@@ -41,19 +42,15 @@ class Game
         {
             if (IsADraw())
             {
-                Board.DisplayLoss();
+                Display.DisplayLoss();
             }
-            Console.Clear();
-            Board.WriteBoard(3);
+            Display.WriteBoard(Board);
             ChangeTurn();
-            Console.WriteLine();
-            Console.WriteLine("What box do you want to place {0} in? (1-9)", GetCurrentTurnPlayer().Character);
-            Console.Write("> ");
-            int selTemp = int.Parse(Console.ReadLine());
 
-            if (selTemp < 10 && selTemp > 0)
+            var selTemp = Display.AskForFieldToPlace(GetCurrentTurnPlayer());
+            if (IsProvidedFieldNumberVaild(selTemp))
             {
-                Board.MoveToField(selTemp, GetCurrentTurnPlayer(), 3);
+                Board.MoveToField(selTemp, GetCurrentTurnPlayer());
             }
             else
             {
@@ -72,8 +69,7 @@ class Game
                 CheckWin();
             }
         }
-        Console.Clear();
-        Board.WriteBoard(3);
+        Display.WriteBoard(Board);
         Console.WriteLine();
         Console.WriteLine("The winner is {0}!", WinPerson);
         Console.ReadKey();
@@ -83,6 +79,9 @@ class Game
         IsWin = true;
         WinPerson = player;
     }
+
+    private bool IsProvidedFieldNumberVaild(int number)
+        => number > 0 && number < Board.Size * Board.Size + 1;
 
     public void CheckWin()
     {
@@ -98,7 +97,7 @@ class Game
     }
 }
 
-class Player
+public class Player
 {
     public char Character { get; private set; }
     public Player(char character)
@@ -107,7 +106,7 @@ class Player
     }
 }
 
-class Board
+public class Board
 {
     public char[,] Boxes { get; private set; }
     public int Size { get; private set; }
@@ -127,24 +126,6 @@ class Board
                 Boxes[i, j] = ' ';
             }
         }
-    }
-
-    public void WriteBoard(int size)
-    {
-        var table = new List<string>();
-        for (var i = 0; i < size; i++)
-        {
-            var row = new List<string>();
-            for (var j = 0; j < size; j++)
-            {
-                row.Add($" {Boxes[i, j]} ");
-            }
-            table.Add(string.Join('|', row));
-        }
-        var tableWith = table[0].Length - 2;
-        var border = string.Join("", Enumerable.Repeat("-", tableWith));
-        var tableAsString = string.Join($"\n {border} \n", table);
-        Console.WriteLine(tableAsString);
     }
 
 
@@ -239,21 +220,13 @@ class Board
         return;
     }
 
-    public void DisplayLoss()
-    {
-        Console.WriteLine();
-        Console.WriteLine("No one won.");
-        Console.ReadKey();
-        Environment.Exit(1);
-    }
-
     public bool HasError = false;
 
-    public void MoveToField(int fieldNumber, Player player, int size)
+    public void MoveToField(int fieldNumber, Player player)
     {
         fieldNumber--;
-        var row = fieldNumber / size;
-        var column = fieldNumber % size;
+        var row = fieldNumber / Size;
+        var column = fieldNumber % Size;
         if (Boxes[row, column] == ' ')
         {
             Boxes[row, column] = player.Character;
@@ -270,5 +243,40 @@ public static class Display
     public static void DisplayGameTitle()
     {
         Console.WriteLine(" -- Tic Tac Toe -- ");
+    }
+
+    public static void DisplayLoss()
+    {
+        Console.WriteLine();
+        Console.WriteLine("No one won.");
+        Console.ReadKey();
+        Environment.Exit(1);
+    }
+
+    public static void WriteBoard(Board board)
+    {
+        Console.Clear();
+        var table = new List<string>();
+        for (var i = 0; i < board.Size; i++)
+        {
+            var row = new List<string>();
+            for (var j = 0; j < board.Size; j++)
+            {
+                row.Add($" {board.Boxes[i, j]} ");
+            }
+            table.Add(string.Join('|', row));
+        }
+        var tableWith = table[0].Length - 2;
+        var border = string.Join("", Enumerable.Repeat("-", tableWith));
+        var tableAsString = string.Join($"\n {border} \n", table);
+        Console.WriteLine(tableAsString);
+    }
+
+    public static int AskForFieldToPlace(Player player)
+    {
+        Console.WriteLine();
+        Console.WriteLine("What box do you want to place {0} in? (1-9)", player.Character);
+        Console.Write("> ");
+        return int.Parse(Console.ReadLine());
     }
 }
