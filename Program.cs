@@ -7,47 +7,8 @@ static class Program
     static void Main()
     {
         var game = new Game(3);
-        Console.WriteLine(" -- Tic Tac Toe -- ");
-        while (!game.Board.IsWin)
-        {
-            if (game.IsADraw())
-            {
-                game.Board.DisplayLoss();
-            }
-            Console.Clear();
-            game.Board.WriteBoard(3);
-            game.ChangeTurn();
-            Console.WriteLine();
-            Console.WriteLine("What box do you want to place {0} in? (1-9)", game.GetCurrentTurnPlayer().Character);
-            Console.Write("> ");
-            int selTemp = int.Parse(Console.ReadLine());
-
-            if (selTemp < 10 && selTemp > 0)
-            {
-                game.Board.MoveToField(selTemp, game.GetCurrentTurnPlayer(), 3);
-            }
-            else
-            {
-                Console.WriteLine("Wrong selection entered!");
-                Console.WriteLine("Press any key to try again..");
-                Console.ReadKey();
-                game.Board.HasError = true;
-            }
-            if (game.Board.HasError)
-            {
-                game.Board.CheckWin(); // if error, just check win
-                game.Board.HasError = !game.Board.HasError;
-            }
-            else
-            {
-                game.Board.CheckWin();
-            }
-        }
-        Console.Clear();
-        game.Board.WriteBoard(3);
-        Console.WriteLine();
-        Console.WriteLine("The winner is {0}!", game.Board.WinPerson);
-        Console.ReadKey();
+        Display.DisplayGameTitle();
+        game.Play();
     }
 }
 
@@ -70,6 +31,50 @@ class Game
     {
         Players.Enqueue(Players.Dequeue());
         MoveCount++;
+    }
+
+    public void Play()
+    {
+        while (!Board.IsWin)
+        {
+            if (IsADraw())
+            {
+                Board.DisplayLoss();
+            }
+            Console.Clear();
+            Board.WriteBoard(3);
+            ChangeTurn();
+            Console.WriteLine();
+            Console.WriteLine("What box do you want to place {0} in? (1-9)", GetCurrentTurnPlayer().Character);
+            Console.Write("> ");
+            int selTemp = int.Parse(Console.ReadLine());
+
+            if (selTemp < 10 && selTemp > 0)
+            {
+                Board.MoveToField(selTemp, GetCurrentTurnPlayer(), 3);
+            }
+            else
+            {
+                Console.WriteLine("Wrong selection entered!");
+                Console.WriteLine("Press any key to try again..");
+                Console.ReadKey();
+                Board.HasError = true;
+            }
+            if (Board.HasError)
+            {
+                Board.CheckWin(); // if error, just check win
+                Board.HasError = !Board.HasError;
+            }
+            else
+            {
+                Board.CheckWin();
+            }
+        }
+        Console.Clear();
+        Board.WriteBoard(3);
+        Console.WriteLine();
+        Console.WriteLine("The winner is {0}!", Board.WinPerson);
+        Console.ReadKey();
     }
 }
 
@@ -261,5 +266,13 @@ class Board
         {
             NotVacantError();
         }
+    }
+}
+
+public static class Display
+{
+    public static void DisplayGameTitle()
+    {
+        Console.WriteLine(" -- Tic Tac Toe -- ");
     }
 }
